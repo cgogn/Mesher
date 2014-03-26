@@ -430,7 +430,7 @@ void AttributeContainer::removeLine(unsigned int index)
 			m_tableBlocksEmpty.push_back(bi);
 	}
 	else
-		CGoGNerr << "Error removing non existing index " << index << CGoGNendl;
+		CGoGNerr << "Error removing non existing index " << index << " in Container of orbit " << m_orbit<< CGoGNendl;
 }
 
 /**************************************

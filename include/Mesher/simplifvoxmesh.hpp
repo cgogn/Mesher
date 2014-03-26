@@ -116,38 +116,30 @@ unsigned char SimplifVoxMesh<PFP>::queueIndex(float length, float curv)
 template <typename PFP>
 void SimplifVoxMesh<PFP>::insertEdgeQueue(Dart d)
 {
-	if (m_map.edgeCanCollapse(d))
+	Dart d1 = m_map.phi1(d);
+
+	unsigned short ve = m_valences[d] + m_valences[d1];
+	Dart e = m_map.phi2(d);
+	unsigned short vo = m_valences[m_map.phi_1(d)];
+	unsigned short voo= m_valences[m_map.phi_1(e)];
+
+	typename PFP::VEC3 V = m_positions[d1] - m_positions[d];
+	float length = V.norm();
+	if ((ve>12) || (vo<6) || (voo<6))
 	{
-		Dart d1 = m_map.phi1(d);
-
-		unsigned short ve = m_valences[d] + m_valences[d1];
-		Dart e = m_map.phi2(d);
-		unsigned short vo = m_valences[m_map.phi_1(d)];
-		unsigned short voo= m_valences[m_map.phi_1(e)];
-
-		typename PFP::VEC3 V = m_positions[d1] - m_positions[d];
-		float length = V.norm();
-		if ((ve>12) || (vo<6) || (voo<6))
-		{
-			length *= 2.0f;
-		}
-
-		float curv = (m_curvatures[d] + m_curvatures[m_map.phi1(d)])/2.0f;
-		unsigned char idq = queueIndex(length, curv);
-
-		if (idq < m_first_non_empty)
-			m_first_non_empty = idq;
-
-		unsigned int id = m_criterias[idq].pushBack(d);
-
-		m_marker.unmark(d);
-		m_crits[d] = ((unsigned long long)(idq) << 32) | id;
-
+		length *= 2.0f;
 	}
-	else
-	{
-		m_marker.mark(d);
-	}
+
+	float curv = (m_curvatures[d] + m_curvatures[m_map.phi1(d)])/2.0f;
+	unsigned char idq = queueIndex(length, curv);
+
+	if (idq < m_first_non_empty)
+		m_first_non_empty = idq;
+
+	unsigned int id = m_criterias[idq].pushBack(d);
+
+	m_marker.unmark(d);
+	m_crits[d] = ((unsigned long long)(idq) << 32) | id;
 }
 
 template <typename PFP>
@@ -211,6 +203,13 @@ template <typename PFP>
 void SimplifVoxMesh<PFP>::collapseEdge()
 {
 	Dart d = getFirstEdgeToCollapse();
+
+	if (! m_map.edgeCanCollapse(d))
+	{
+		m_marker.mark(d);
+		removeEdgeQueue(d);
+		return;
+	}
 
 	Dart e = m_map.phi1(d);
 
