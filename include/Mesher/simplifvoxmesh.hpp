@@ -37,7 +37,7 @@ m_marker(m)
 	m_crits      = m.template addAttribute<unsigned long long, EDGE>("crits");
 	m_curvatures = m.template addAttribute<float, VERTEX>("curvatures");
 	m_bounds     = m.template addAttribute<unsigned char, VERTEX>("bounds");
-	m_valences   = m.template addAttribute<unsigned char, VERTEX>("valences");
+//	m_valences   = m.template addAttribute<unsigned char, VERTEX>("valences");
 
 	m_coef[0]=0.0f;
 	m_coef[1]=0.0f;
@@ -57,7 +57,7 @@ SimplifVoxMesh<PFP>::~SimplifVoxMesh()
 {
 	m_map.template removeAttribute<unsigned char, VERTEX>(m_bounds);
 	m_map.template removeAttribute<float, VERTEX>(m_curvatures);
-	m_map.template removeAttribute<unsigned char, VERTEX>(m_valences);
+//	m_map.template removeAttribute<unsigned char, VERTEX>(m_valences);
 	m_map.template removeAttribute< unsigned long long, EDGE>(m_crits);
 }
 
@@ -118,18 +118,20 @@ void SimplifVoxMesh<PFP>::insertEdgeQueue(Dart d)
 {
 	Dart d1 = m_map.phi1(d);
 
-	unsigned short ve = m_valences[d] + m_valences[d1];
+//	int ve = m_valences[d] + m_valences[d1];
 	Dart e = m_map.phi2(d);
-	unsigned short vo = m_valences[m_map.phi_1(d)];
-	unsigned short voo= m_valences[m_map.phi_1(e)];
+//	int vo = m_valences[m_map.phi_1(d)];
+//	int voo= m_valences[m_map.phi_1(e)];
 
 	typename PFP::VEC3 V = m_positions[d1] - m_positions[d];
 	float length = V.norm();
+
+/*
 	if ((ve>12) || (vo<6) || (voo<6))
 	{
 		length *= 2.0f;
 	}
-
+*/
 	float curv = (m_curvatures[d] + m_curvatures[m_map.phi1(d)])/2.0f;
 	unsigned char idq = queueIndex(length, curv);
 
@@ -216,7 +218,7 @@ void SimplifVoxMesh<PFP>::collapseEdge()
 	float curv;
 	typename PFP::VEC3 P = computeNewPosition(d, curv);
 
-	unsigned short val = m_valences[d] + m_valences[e] - 4;
+//	unsigned short val = m_valences[d] + m_valences[e] - 4;
 
 	e = d;
 	do
@@ -236,7 +238,7 @@ void SimplifVoxMesh<PFP>::collapseEdge()
 	Dart f = m_map.collapseEdge(d,true);
 	m_positions[f] = P;
 	m_curvatures[f] = curv;
-	m_valences[f] = (unsigned char)(val);
+//	m_valences[f] = (unsigned char)(val);
 
 	e = f;
 	do

@@ -347,6 +347,69 @@ void parallelComputeCurvatureValence( typename PFP::MAP& map, const VertexAttrib
 }
 
 
+
+
+
+
+
+template<typename PFP, typename DATATYPE>
+class ParallelFunctorCurv: public FunctorMapThreaded<typename PFP::MAP>
+{
+	typedef typename PFP::MAP MAP;
+
+protected:
+	MAP& m_map;
+	const VertexAttribute<typename PFP::VEC3>& m_position;
+	VertexAttribute<float>& m_curvature;
+	Algo::Surface::MC::Image<DATATYPE>* m_img;
+	std::vector<int> m_sphere;
+	int m_rad;
+	DATATYPE m_val;
+	float m_vx;
+	float m_vy;
+	float m_vz;
+
+public:
+	ParallelFunctorCurv(MAP& map, const VertexAttribute<typename PFP::VEC3>& position, VertexAttribute<float>& curvature,
+								Algo::Surface::MC::Image<DATATYPE>* im, int rad, DATATYPE val, float vx, float vy, float vz):
+		FunctorMapThreaded<typename PFP::MAP>(map),
+		m_map(map), m_position(position), m_curvature(curvature),
+		m_img(im), m_rad(rad), m_val(val),m_vx(vx),m_vy(vy),m_vz(vz)
+	{
+		if (rad == 0)
+			rad = 1;
+		im->createMaskOffsetSphere(m_sphere,rad);
+	}
+
+	void run(Dart d, unsigned int /*threadID*/)
+	{
+		const typename PFP::VEC3& pos = m_position[d];
+//		DATATYPE* ptr = m_img->getVoxelPtr(int(round(pos[0]/m_vx)), int(round(pos[1]/m_vy)), int(round(pos[2]/m_vz)));
+
+		float  curv = m_img->computeCurvatureCount(pos[0],pos[1],pos[2], m_sphere, m_val);
+		m_curvature[d] = curv;
+	}
+};
+
+
+template <typename PFP,typename DATATYPE>
+void parallelComputeCurvature( typename PFP::MAP& map, const VertexAttribute<typename PFP::VEC3>& position, VertexAttribute<float>& curvature,
+								 Algo::Surface::MC::Image<DATATYPE>* im, int rad, DATATYPE val, float vx, float vy, float vz, int nbth)
+{
+	ParallelFunctorCurv<PFP,DATATYPE> funct(map, position, curvature, im, rad, val, vx, vy, vz);
+	Algo::Parallel::foreach_cell<typename PFP::MAP,VERTEX>(map, funct, nbth, false);
+
+}
+
+
+
+
+
+
+
+
+
+
 template <typename PFP>
 void diffuseCurvature(typename PFP::MAP& map, Dart d, VertexAttribute<float>& curvatures, VertexAttribute<Geom::Vec3f>& colors)
 {

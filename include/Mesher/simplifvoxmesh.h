@@ -59,7 +59,7 @@ protected:
 	VertexAttribute<typename PFP::VEC3> m_positions;
 	EdgeAttribute<unsigned long long> m_crits;
 	VertexAttribute<float> m_curvatures;
-	VertexAttribute<unsigned char> m_valences;
+//	VertexAttribute<unsigned char> m_valences;
 	VertexAttribute<unsigned char> m_bounds;
 
 	float m_coef[2];
@@ -111,7 +111,7 @@ public:
 
 	VertexAttribute<float>& curvatureAttrib() { return m_curvatures;}
 
-	VertexAttribute<unsigned char>& valenceAttrib() { return m_valences;}
+//	VertexAttribute<unsigned char>& valenceAttrib() { return m_valences;}
 
 };
 

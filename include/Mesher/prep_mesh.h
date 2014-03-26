@@ -64,6 +64,14 @@ void parallelComputeCurvatureValence( typename PFP::MAP& map,
 										Algo::Surface::MC::Image<DATATYPE>* im, int rad, DATATYPE val,
 										float vx, float vy, float vz, int nbth);
 
+template <typename PFP,typename DATATYPE>
+void parallelComputeCurvature( typename PFP::MAP& map,
+								const VertexAttribute<typename PFP::VEC3>& position,
+								VertexAttribute<float>& curvature,
+								VertexAttribute<Geom::Vec3f>& colors,
+								Algo::Surface::MC::Image<DATATYPE>* im, int rad, DATATYPE val,
+								float vx, float vy, float vz, int nbth);
+
 
 template <typename PFP>
 void diffuseCurvature(typename PFP::MAP& map, Dart d, VertexAttribute<float>& curvatures, VertexAttribute<Geom::Vec3f>& colors);
