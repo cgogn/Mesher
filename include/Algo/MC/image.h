@@ -280,7 +280,13 @@ public:
 	* @param  _lX,_lY,_lZ position
 	* @return the value of the voxel
 	*/
-	DataType getVoxel(int _lX,int _lY, int _lZ);
+	DataType getVoxel(int _lX, int _lY, int _lZ);
+
+	/**
+	* reference access to voxel
+	*/
+	DataType& voxel(int _lX, int _lY, int _lZ);
+	const DataType& voxel(int _lX, int _lY, int _lZ) const;
 
 	/**
 	* get the voxel address (const ptr)
@@ -373,6 +379,11 @@ public:
 	Geom::Vec3f computeNormal(DataType *ptrVox, const std::vector<Geom::Vec3f>& sphere, DataType val, unsigned int radius);
 
 	bool checkSaddlecomputeNormal(const Geom::Vec3f& P, const Geom::Vec3f& normal, unsigned int radius);
+
+	Image<DataType>* doubleZ() const;
+
+	Image<DataType>* div2XY() const;
+
 };
 
 

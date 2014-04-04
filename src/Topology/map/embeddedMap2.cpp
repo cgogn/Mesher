@@ -209,6 +209,7 @@ bool EmbeddedMap2::uncutEdge(Dart d)
 bool EmbeddedMap2::edgeCanCollapse(Dart d)
 {
 	if(isBoundaryVertex(d) || isBoundaryVertex(phi1(d)))
+//	if(isBoundaryVertex(d) ^ isBoundaryVertex(phi1(d)))
 		return false ;
 
 	unsigned int val_v1 = vertexDegree(d) ;

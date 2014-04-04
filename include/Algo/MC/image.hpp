@@ -499,6 +499,18 @@ DataType Image<DataType>::getVoxel(int _lX, int _lY, int _lZ)
   return m_Data[_lX + m_WX*_lY + m_WXY*_lZ];
 }
 
+template< typename  DataType >
+DataType& Image<DataType>::voxel(int _lX, int _lY, int _lZ)
+{
+  return m_Data[_lX + m_WX*_lY + m_WXY*_lZ];
+}
+
+template< typename  DataType >
+const DataType& Image<DataType>::voxel(int _lX, int _lY, int _lZ) const
+{
+  return m_Data[_lX + m_WX*_lY + m_WXY*_lZ];
+}
+
 
 template< typename  DataType >
 const DataType* Image<DataType>::getVoxelPtr(int lX, int lY, int lZ) const
@@ -1134,6 +1146,80 @@ bool Image<DataType>::checkSaddlecomputeNormal(const Geom::Vec3f& P, const Geom:
 
 	return false;
 }
+
+
+template< typename  DataType >
+Image<DataType>* Image<DataType>::doubleZ() const
+{
+
+	DataType* data2 = new DataType[m_WX*m_WY*m_WZ*2];
+	Image<DataType>* newImg = new Image<DataType>(data2,m_WX,m_WY,m_WZ*2,getVoxSizeX(),getVoxSizeY(),getVoxSizeZ()/2.0f);
+	newImg->m_Alloc=true;
+
+	int txm = m_WX-1;
+	int tym = m_WY-1;
+	int tzm = m_WZ-1;
+
+	// first slice
+	for(int y=0; y<m_WY; ++y)
+		for(int x=0; x<m_WX; ++x)
+		{
+			newImg->voxel(x,y,0) = voxel(x,y,0);
+			newImg->voxel(x,y,1) = DataType( 2.0f/3.0f*(voxel(x,y,0)) + 1.0f/3.0f*(voxel(x,y,1)) );	
+		}
+
+
+	for(int z=1; z<tzm; ++z)
+	{
+		for(int y=0; y<m_WY; ++y)
+			for(int x=0; x<m_WX; ++x)
+			{
+				newImg->voxel(x,y,2*z) = DataType( 2.0/3.0*(voxel(x,y,z)) + 1.0/3.0*(voxel(x,y,z-1)) );
+				newImg->voxel(x,y,2*z+1) = DataType( 2.0/3.0*(voxel(x,y,z)) + 1.0/3.0*(voxel(x,y,z+1)) );	
+			}
+	}
+
+	// last slice
+	for(int y=0; y<m_WY; ++y)
+		for(int x=0; x<m_WX; ++x)
+		{
+			newImg->voxel(x,y,2*tzm) = DataType( 2.0f/3.0f*(voxel(x,y,tzm)) + 1.0f/3.0f*(voxel(x,y,tzm-1)) );
+			newImg->voxel(x,y,2*tzm+1) = voxel(x,y,tzm);	
+		}
+
+
+	return newImg;
+}
+
+
+template< typename  DataType >
+Image<DataType>* Image<DataType>::div2XY() const
+{
+	int txm = m_WX/2;
+	int tym = m_WY/2;
+
+	DataType* data2 = new DataType[txm*tym*m_WZ];
+	Image<DataType>* newImg = new Image<DataType>(data2,txm,tym,m_WZ,getVoxSizeX()*2.0f,getVoxSizeY()*2.0f,getVoxSizeZ());
+	newImg->m_Alloc=true;
+
+
+	for(int z=0; z<m_WZ; ++z)
+	{
+		for(int y=0; y<tym; ++y)
+			for(int x=0; x<txm; ++x)
+			{
+				double tot = voxel(2*x,2*y,z);
+				tot += voxel(2*x+1,2*y,z);
+				tot += voxel(2*x,2*y+1,z);
+				tot += voxel(2*x+1,2*y+1,z);
+				tot /= 4.0 ;
+				newImg->voxel(x,y,z) = DataType(tot);
+			}
+	}
+
+	return newImg;
+}
+
 
 
 

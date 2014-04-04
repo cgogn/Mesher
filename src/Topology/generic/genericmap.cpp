@@ -852,11 +852,13 @@ void GenericMap::compact()
 	{
 		if ((orbit != DART) && (isOrbitEmbedded(orbit)))
 		{
+			std::cout << "COMPACT EMBEDDING ORBIT " << orbit << std::endl;
 			oldnews[orbit] = new std::vector<unsigned int>;
 			m_attribs[orbit].compact(*(oldnews[orbit]));
 		}
 	}
 
+	
 	// update embedding indices of topo
 	for (unsigned int i = m_attribs[DART].begin(); i != m_attribs[DART].end(); m_attribs[DART].next(i))
 	{
@@ -875,7 +877,7 @@ void GenericMap::compact()
 	// delete allocated vectors
 	for (unsigned int orbit = 0; orbit < NB_ORBITS; ++orbit)
 		if ((orbit != DART) && (isOrbitEmbedded(orbit)))
-			delete[] oldnews[orbit];
+			delete oldnews[orbit];
 
 	//compacting the topo
 	std::vector<unsigned int> oldnew;
@@ -896,8 +898,9 @@ void GenericMap::compact()
 		}
 	}
 
+std::cout << "COMPACT TOPO" << std::endl;
 	// update topo relations from real map
-	compactTopoRelations(oldnewMR);
+	compactTopoRelations(oldnew);
 
 //	dumpAttributesAndMarkers();
 }

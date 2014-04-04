@@ -1177,6 +1177,7 @@ void MarchingCube<DataType, Windowing, PFP>::removeFacesOfBoundary(VertexAttribu
 			boundVertices[it] = 0;
 	}
 
+/*
 //	 traverse face and check if all vertices are bound
 	DartMarker mf(*m_map);
 	for (Dart d = m_map->begin(); d != m_map->end();)	// next done inside loop because of deleteFace
@@ -1199,25 +1200,41 @@ void MarchingCube<DataType, Windowing, PFP>::removeFacesOfBoundary(VertexAttribu
 		else m_map->next(d);
 	}
 	m_map->closeMap();
-
+*/
 ////	 VERSION USING DELETE FACE WITH BOUNDARY
-//	DartMarker mf(*m_map);
-//	std::vector<Dart> vecF;
-//	vecF.reserve(8192);
-//	for (Dart d = m_map->begin(); d != m_map->end();m_map->next(d))	// next done inside loop because of deleteFace
-//	{
-//		if ((!mf.isMarked(d)) && (!m_map->isBoundaryMarked2(d)) )
-//		{
-//			Dart dd = d;
-//			Dart e = m_map->phi1(d);
-//			Dart f = m_map->phi1(e);
-//			if ((boundVertices[dd]!=0) && (boundVertices[e]!=0) && (boundVertices[f]!=0))
-//				vecF.push_back(d);
-//			mf.markOrbit(FACE,dd);
-//		}
-//	}
-//	for (std::vector<Dart>::iterator it = vecF.begin(); it != vecF.end(); ++it)
-//		m_map->deleteFace(*it);
+
+/*	DartMarker mf(*m_map);
+	std::vector<Dart> vecF;
+	vecF.reserve(8192);
+	for (Dart d = m_map->begin(); d != m_map->end();m_map->next(d))	
+	{
+		if ((!mf.isMarked(d)) && (!m_map->isBoundaryMarked2(d)) )
+		{
+			Dart dd = d;
+			Dart e = m_map->phi1(d);
+			Dart f = m_map->phi1(e);
+			if ((boundVertices[dd]!=0) && (boundVertices[e]!=0) && (boundVertices[f]!=0))
+				vecF.push_back(d);
+			mf.markOrbit<FACE>(dd);
+		}
+	}
+*/
+
+	std::vector<Dart> vecF;
+	vecF.reserve(8192);
+	TraversorF<typename PFP::MAP> traf(*m_map);
+	for (Dart d = traf.begin(); d != traf.end(); d=traf.next())
+	{
+		Dart e = m_map->phi1(d);
+		Dart f = m_map->phi1(e);
+		if ((boundVertices[d]!=0) && (boundVertices[e]!=0) && (boundVertices[f]!=0))
+			vecF.push_back(d);
+	}
+	
+	for (std::vector<Dart>::iterator it = vecF.begin(); it != vecF.end(); ++it)
+	{
+		m_map->deleteFace(*it);
+	}	
 }
 
 template< typename  DataType, template < typename D2 > class Windowing, typename PFP >

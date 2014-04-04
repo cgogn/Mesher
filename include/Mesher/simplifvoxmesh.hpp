@@ -257,8 +257,57 @@ void SimplifVoxMesh<PFP>::until(unsigned int nbFaces)
 	while ((m_criterias[0].nbTotal() > 0) && (m_nbFaces > nbFaces))
 	{
 		collapseEdge();
-		
 	}
+}
+
+
+template <typename PFP>
+void SimplifVoxMesh<PFP>::cleanBoundary()
+{
+	std::vector<Dart> buff;
+	std::vector<Dart> buff2;
+	TraversorE<typename PFP::MAP> trae(m_map);
+	for (Dart d=trae.begin(); d!=trae.end(); d= trae.next())
+	{
+		if (m_map.isBoundaryEdge(d))
+		{
+			typename PFP::VEC3 v = m_positions[d] - m_positions[m_map.phi1(d)];
+			if (v*v < 0.00001f)
+				buff.push_back(d);
+			else
+			{
+				Dart dd = m_map.alpha1(m_map.alpha1(m_map.alpha1(d)));
+				if (dd == d)
+				{
+					typename PFP::VEC3 w = m_positions[d] - m_positions[m_map.phi2(m_map.alpha_1(d))];
+					v.normalize();
+					w.normalize();
+					if (v*w < -0.9848f) // angle > 170°
+					{
+						buff2.push_back(d);
+					}
+				}
+			}
+		}
+	}
+
+	for(std::vector<Dart>::iterator it=buff.begin(); it != buff.end(); ++it)
+	{
+		Dart d = m_map.template phi<12>(*it);
+		Dart e = m_map.template phi<112>(*it);
+		m_map.deleteFace(*it);
+		m_map.sewFaces(d,e);
+	}
+
+	for(std::vector<Dart>::iterator it=buff2.begin(); it != buff2.end(); ++it)
+	{
+		Dart d = m_map.alpha1(*it);
+		Dart e = m_map.phi_1(d);
+		m_map.mergeFaces(d);
+		m_map.uncutEdge(e);
+	}
+
+
 }
 
 }

@@ -113,6 +113,8 @@ public:
 
 //	VertexAttribute<unsigned char>& valenceAttrib() { return m_valences;}
 
+	void cleanBoundary();
+
 };
 
 }
